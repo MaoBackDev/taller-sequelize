@@ -7,17 +7,18 @@ export const getUsers = async(req, res) => {
   try {
     const users = await User.findAll({
       where: {
-        [Op.and]: [
-          { first_name: 'camilo' },
-          { email: 'camilo2@gmail.com' }
-        ]
-        // first_name: {
-        //   [Op.eq]: 'camilo'
-        // }
+        status: 'activo'
       },
       attributes: {
-        exclude: ['password', 'updatedAt']
-      }
+        exclude: ['password', 'status', 'createdAt', 'updatedAt']
+      },
+      include: [{
+        model: Skill,
+        attributes: {
+          exclude: ['id']
+        },
+        through: { attributes: [] }
+      }]
     });
     res.status(200).json({
       ok: true,
@@ -29,8 +30,8 @@ export const getUsers = async(req, res) => {
 }
 
 
-export const getUserById = async (req, res) => {
-  const { id } = req.params;
+export const getProfile = async (req, res) => {
+  const { id } = req.headers;
 
   try {
     const user = await User.findByPk(id, {
@@ -58,40 +59,39 @@ export const getUserById = async (req, res) => {
 }
 
 
+// export const createUser = async (req, res) => {
+//   const { first_name, last_name, email, password, address, skills} = req.body;
 
-export const createUser = async (req, res) => {
-  const { first_name, last_name, email, password, address, skills} = req.body;
+//   const salt = bcrypt.genSaltSync(10);
+//   const hash = bcrypt.hashSync(password, salt);
 
-  const salt = bcrypt.genSaltSync(10);
-  const hash = bcrypt.hashSync(password, salt);
+//   try {
 
-  try {
+//     // select * from users where email=email
+//     const userExist = await User.findOne({
+//       where: { email }
+//     })
 
-    // select * from users where email=email
-    const userExist = await User.findOne({
-      where: { email }
-    })
+//     if(userExist) return res.status(400).json({
+//       message: 'ya existe una cuenta con el email proporcinado.'
+//     })
 
-    if(userExist) return res.status(400).json({
-      message: 'ya existe una cuenta con el email proporcinado.'
-    })
+//     const user = await User.create({
+//       first_name,
+//       last_name,
+//       email,
+//       password: hash,
+//       address
+//     })
 
-    const user = await User.create({
-      first_name,
-      last_name,
-      email,
-      password: hash,
-      address
-    })
+//     skills.map(skill => user.addSkill([skill]))
+//     await user.save();
 
-    skills.map(skill => user.addSkill([skill]))
-    await user.save();
-
-    res.status(201).json({
-      ok: true,
-      message: 'Usuario creado exitosamente.'
-    })
-  } catch (error) {
-    res.status(500).json({message: error.message})
-  }
-}
+//     res.status(201).json({
+//       ok: true,
+//       message: 'Usuario creado exitosamente.'
+//     })
+//   } catch (error) {
+//     res.status(500).json({message: error.message})
+//   }
+// }

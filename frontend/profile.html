@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>mi perfil</h1>
+  <h2 id="username"></h2>
+  <button id="logout">logout</button>
+  <script>
+   
+    
+    (async () => {
+      const id = localStorage.getItem('id') || false;
+      const username = document.getElementById('username')
+      const btnLogout = document.getElementById('logout')
+      if(!id) location.href = 'index.html'
+
+
+      const response = await fetch(`http://localhost:3000/api/users/profile`, {
+        method: 'GET',
+        headers: {
+          "Content-type": "application/json",
+          id
+        }
+      })
+      const data = await response.json();
+      const { user } = data;
+      console.log(user)
+      username.textContent = `${user.first_name} ${user.last_name}`
+
+      btnLogout.addEventListener('click', () => {
+        localStorage.removeItem('id')
+        location.reload()
+      })
+    })()
+
+
+
+  </script>
+</body>
+</html>
